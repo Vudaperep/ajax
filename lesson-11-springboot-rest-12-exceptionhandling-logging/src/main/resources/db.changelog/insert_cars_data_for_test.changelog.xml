@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+<changeSet author="e.kvasov" id="17.7.2019 12:55" context="test">
+    <insert catalogName="cars"
+            dbms="h2"
+            schemaName="public"
+            tableName="car">
+        <column name="colour" value="RED" type="varchar(50)"/>
+        <column name="model" value="Tesla" type="varchar(50)"/>
+    </insert>
+    <insert catalogName="cars"
+            dbms="h2"
+            schemaName="public"
+            tableName="car">
+        <column name="colour" value="RED" type="varchar(50)"/>
+        <column name="model" value="BMW" type="varchar(50)"/>
+    </insert>
+    <insert catalogName="cars"
+            dbms="h2"
+            schemaName="public"
+            tableName="car">
+        <column name="colour" value="RED" type="varchar(50)"/>
+        <column name="model" value="BMW" type="varchar(50)"/>
+    </insert>
+</changeSet>
+</databaseChangeLog>

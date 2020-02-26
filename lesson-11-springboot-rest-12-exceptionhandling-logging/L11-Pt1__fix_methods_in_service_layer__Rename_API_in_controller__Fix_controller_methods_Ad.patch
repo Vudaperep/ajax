@@ -1,0 +1,330 @@
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- pom.xml	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ pom.xml	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -136,6 +136,13 @@
+ 			<version>${comon-lang3}</version>
+ 		</dependency>
+ 
++		<dependency>
++			<groupId>org.springframework</groupId>
++			<artifactId>spring-test</artifactId>
++			<version>5.1.8.RELEASE</version>
++			<scope>test</scope>
++		</dependency>
++
+ 	</dependencies>
+ 
+ 	<build>
+Index: src/main/java/com/godeltech/pt11/dto/CarCreateRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/godeltech/pt11/dto/CarCreateRequest.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ src/main/java/com/godeltech/pt11/dto/CarCreateRequest.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -8,6 +8,7 @@
+ @NoArgsConstructor
+ @AllArgsConstructor
+ @Builder
++@EqualsAndHashCode
+ public class CarCreateRequest {
+ 
+     private String model;
+Index: src/main/java/com/godeltech/pt11/dto/CarDto.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/godeltech/pt11/dto/CarDto.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ src/main/java/com/godeltech/pt11/dto/CarDto.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -9,6 +9,8 @@
+ @NoArgsConstructor
+ @AllArgsConstructor
+ @Builder
++@EqualsAndHashCode
++@ToString
+ public class CarDto {
+ 
+     private Long id;
+Index: src/main/java/com/godeltech/pt11/entity/Car.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/godeltech/pt11/entity/Car.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ src/main/java/com/godeltech/pt11/entity/Car.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -12,6 +12,7 @@
+ @ToString
+ @Builder
+ @Table(name = "car")
++@EqualsAndHashCode
+ public class Car {
+ 
+     @Id
+Index: src/main/java/com/godeltech/pt11/Repository/CarRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/godeltech/pt11/Repository/CarRepository.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ src/main/java/com/godeltech/pt11/repository/CarRepository.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -1,4 +1,4 @@
+-package com.godeltech.pt11.Repository;
++package com.godeltech.pt11.repository;
+ 
+ import com.godeltech.pt11.entity.Car;
+ import com.godeltech.pt11.entity.Colour;
+Index: src/main/java/com/godeltech/pt11/rest/CarController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/godeltech/pt11/rest/CarController.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ src/main/java/com/godeltech/pt11/rest/CarController.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -5,6 +5,7 @@
+ import com.godeltech.pt11.entity.Car;
+ import com.godeltech.pt11.entity.Colour;
+ import com.godeltech.pt11.service.CarService;
++import javassist.NotFoundException;
+ import lombok.RequiredArgsConstructor;
+ import org.springframework.web.bind.annotation.*;
+ 
+@@ -37,12 +38,12 @@
+         carService.delete(id);
+     }
+ 
+-    @PutMapping
+-    public CarDto updateCar(@RequestBody Car car) {
+-       return carService.update(car);
++    @PutMapping("{id}")
++    public CarDto updateCar(@PathVariable Long id,@RequestBody CarDto carDto) throws NotFoundException {
++       return carService.update(id,carDto);
+     }
+ 
+-    @GetMapping("colour/{colour}")
++    @GetMapping("findByColour/{colour}")
+     public List<CarDto> findByColour(@PathVariable Colour colour) {
+         return carService.findByColour(colour);
+     }
+Index: src/main/java/com/godeltech/pt11/service/CarService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/com/godeltech/pt11/service/CarService.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ src/main/java/com/godeltech/pt11/service/CarService.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -1,15 +1,16 @@
+ package com.godeltech.pt11.service;
+ 
+-import com.godeltech.pt11.Repository.CarRepository;
++import com.godeltech.pt11.repository.CarRepository;
+ import com.godeltech.pt11.converter.CarConverter;
+ import com.godeltech.pt11.dto.CarCreateRequest;
+ import com.godeltech.pt11.dto.CarDto;
+ import com.godeltech.pt11.entity.Car;
+ import com.godeltech.pt11.entity.Colour;
++import javassist.NotFoundException;
+ import lombok.AllArgsConstructor;
+-import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ 
++
+ import java.util.List;
+ import java.util.stream.Collectors;
+ 
+@@ -33,20 +34,21 @@
+     }
+ 
+     public CarDto create(CarCreateRequest carCreateRequest) {
+-        return carConverter
+-                .fromEntityToDto(carRepository
+-                        .save(carConverter
+-                                .carSaveFormDtoToEntity(carCreateRequest)));
++        Car newCar = carConverter.carSaveFormDtoToEntity(carCreateRequest);
++        return carConverter.fromEntityToDto(carRepository.save(newCar));
+     }
+ 
+     public void delete(Long id) {
+         carRepository.deleteById(id);
+     }
+ 
+-    public CarDto update(Car car) {
+-        return carConverter
+-                .fromEntityToDto(carRepository
+-                        .save(car));
++    public CarDto update(Long id,CarDto carDto) throws NotFoundException {
++        if(carRepository.existsById(id)) {
++           carDto = carConverter.fromEntityToDto(carRepository.save(carConverter.fromDtoToEntity(carDto)));
++        }else {
++            throw new NotFoundException("No id found");
++        }
++        return carDto;
+     }
+ 
+     public List<CarDto> findByColour(Colour colour) {
+Index: src/test/java/com/godeltech/pt11/rest/CarControllerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/java/com/godeltech/pt11/rest/CarControllerTest.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
++++ src/test/java/com/godeltech/pt11/rest/CarControllerTest.java	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -0,0 +1,99 @@
++package com.godeltech.pt11.rest;
++
++
++import com.fasterxml.jackson.core.JsonProcessingException;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import com.godeltech.pt11.PtApplication;
++import com.godeltech.pt11.dto.CarCreateRequest;
++import com.godeltech.pt11.dto.CarDto;
++import com.godeltech.pt11.entity.Car;
++import com.godeltech.pt11.entity.Colour;
++import com.godeltech.pt11.service.CarService;
++import org.junit.Assert;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.boot.test.web.client.TestRestTemplate;
++import org.springframework.boot.web.server.LocalServerPort;
++import org.springframework.core.ParameterizedTypeReference;
++import org.springframework.http.*;
++import org.springframework.test.context.jdbc.Sql;
++import org.springframework.test.context.junit4.SpringRunner;
++
++import java.net.URI;
++import java.util.List;
++
++
++@RunWith(SpringRunner.class)
++@SpringBootTest(
++        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
++        classes = PtApplication.class)
++public class CarControllerTest {
++
++    @LocalServerPort
++    private int port;
++
++    private String baseUrl = "http://localhost:";
++
++    private String contextPath = "/pt11";
++
++    private TestRestTemplate restTemplate = new TestRestTemplate();
++
++    @Autowired
++    private ObjectMapper mapper;
++
++    @Test
++    public void getAll() {
++        ResponseEntity<List<Car>> carsResponseEntity = restTemplate
++                .exchange(baseUrl + port + contextPath + "/cars", HttpMethod.GET,
++                        null, new ParameterizedTypeReference<List<Car>>() {});
++        Assert.assertEquals(HttpStatus.OK, carsResponseEntity.getStatusCode());
++    }
++
++    @Test
++    public void create() throws JsonProcessingException {
++        CarCreateRequest carCreateRequest = new CarCreateRequest("Ford",Colour.GREEN);
++        ResponseEntity<CarDto> carResponseEntity = restTemplate.exchange(
++                RequestEntity.post(URI.create(baseUrl + port + contextPath + "/cars"))
++                        .contentType(MediaType.APPLICATION_JSON_UTF8)
++                        .body(mapper.writeValueAsString(carCreateRequest)), CarDto.class);
++        Assert.assertEquals(HttpStatus.OK, carResponseEntity.getStatusCode());
++
++    }
++
++    @Test
++    public void findByColour() {
++        final Colour colour = Colour.GREEN;
++        ResponseEntity<List<Car>> carResponseEntity = restTemplate
++                .exchange(baseUrl + port + contextPath + "/cars/findByColour/" + colour, HttpMethod.GET, null, new ParameterizedTypeReference<List<Car>>() {});
++        Assert.assertEquals(HttpStatus.OK, carResponseEntity.getStatusCode());
++    }
++
++    @Test
++    public void findById() {
++        ResponseEntity<List<Car>> carResponseEntity = restTemplate
++                .exchange(baseUrl + port + contextPath + "/cars/" + 1L, HttpMethod.GET, null, new ParameterizedTypeReference<List<Car>>() {});
++        Assert.assertEquals(HttpStatus.OK, carResponseEntity.getStatusCode());
++    }
++
++
++    @Test
++    public void update() throws JsonProcessingException {
++        CarCreateRequest carCreateRequest = new CarCreateRequest("Tesla",Colour.GREEN);
++        ResponseEntity<CarDto> employeeResponseEntity = restTemplate.exchange(
++                RequestEntity.put(URI.create(baseUrl + port + contextPath +  "/cars"))
++                        .contentType(MediaType.APPLICATION_JSON_UTF8)
++                        .body(mapper.writeValueAsString(carCreateRequest)), CarDto.class);
++        Assert.assertEquals(HttpStatus.OK, employeeResponseEntity.getStatusCode());
++    }
++
++    @Test
++    public void deleteEmployee() throws JsonProcessingException {
++        final Long id = 3L;
++        ResponseEntity<Car> employeeResponseEntity = restTemplate
++                .exchange(baseUrl + port + contextPath + "/cars/" + id, HttpMethod.DELETE, null, new ParameterizedTypeReference<Car>() {});
++        Assert.assertEquals(HttpStatus.OK, employeeResponseEntity.getStatusCode());
++    }
++
++}
+Index: src/test/java/com/godeltech/pt11/service/CarServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/java/com/godeltech/pt11/service/CarServiceTest.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
++++ src/test/java/com/godeltech/pt11/service/CarServiceTest.java	(revision 2866df93180a89ec8108dc54d26e3539bca21f42)
+@@ -1,17 +0,0 @@
+-package com.godeltech.pt11.service;
+-
+-
+-import org.junit.runner.RunWith;
+-import org.mockito.InjectMocks;
+-import org.mockito.Mock;
+-import org.mockito.junit.MockitoJUnitRunner;
+-
+-@RunWith(MockitoJUnitRunner.class)
+-public class CarServiceTest {
+-
+-    @Mock
+-    CarService carService;
+-
+-
+-
+-}
+Index: src/test/resources/application.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/resources/application.yml	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
++++ src/test/resources/application.yml	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -0,0 +1,12 @@
++spring:
++  datasource:
++    platform: mysql
++    url: jdbc:mysql://localhost:3306/carstest
++    username: root
++    password: root
++  jpa:
++    hibernate:
++      ddl-auto: create
++server:
++  servlet:
++    context-path: /pt11
+Index: src/test/resources/script.sql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/resources/script.sql	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
++++ src/test/resources/script.sql	(revision 400be58d0b1b2e6428dea6b3e886292fe1877ec3)
+@@ -0,0 +1,1 @@
++insert into carstest.carstest (model,colour) values ("Tesla", "GREEN");
+\ No newline at end of file

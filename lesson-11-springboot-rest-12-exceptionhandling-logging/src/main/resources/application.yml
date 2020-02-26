@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    platform: mysql
+    url: jdbc:mysql://localhost:3306/cars
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    contexts: prod
+    change-log: classpath:db.changelog/db.changelog-master.xml
+    enabled: true
+    url: jdbc:mysql://localhost:3306/cars?useSSL=false&createDatabaseIfNotExist=true
+    user: root
+    password: root
+server:
+  servlet:
+    context-path: /pt11
+management:
+  endpoint:
+    conditions:
+      enabled: true
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+

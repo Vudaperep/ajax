@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <include file="create_car_table.changelog.xml" relativeToChangelogFile="true"/>
+    <include file="insert_cars_data_for_test.changelog.xml" relativeToChangelogFile="true"/>
+    <include file="defaut_value_for_colour.changelog.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

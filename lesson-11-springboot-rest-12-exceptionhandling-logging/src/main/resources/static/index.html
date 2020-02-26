@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Cars</title>
+    <link rel="stylesheet" href="css/styles.css"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+</head>
+
+<body>
+
+<div class="header">
+    <button id="refresh">Refresh</button>
+    <select id="searchKey" onchange="onChangeColourSearch()">
+        <option value="">All</option>
+        <option value="RED">RED</option>
+        <option value="BLUE">BLUE</option>
+        <option value="GREEN">GREEN</option>
+        <option value="GREY">GREY</option>
+        <option value="BLACK">BLACK</option>
+        <option value="ORANGE">ORANGE</option>
+    </select>
+</div>
+
+<div id="car_inputs">
+
+    <label>Id:</label>
+    <input id="id" name="id" type="text" disabled/>
+
+    <label>Name:</label>
+    <input type="text" id="model" name="model" required>
+
+    <label>Colour:
+        <select id="colour">
+            <option value=""></option>
+            <option value="RED">RED</option>
+            <option value="BLUE">BLUE</option>
+            <option value="GREEN">GREEN</option>
+            <option value="GREY">GREY</option>
+            <option value="BLACK">BLACK</option>
+            <option value="ORANGE">ORANGE</option>
+        </select>
+    </label>
+    <button id="btnSave">Save</button>
+    <button id="btnDelete">Delete</button>
+</div>
+<table class="table table-striped">
+    <thead class="header">
+    <tr>
+        <th>Model</th>
+        <th>Colour</th>
+    </tr>
+    </thead>
+    <tbody id="carList">
+    </tbody>
+
+</table>
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+<script src="js/getAllCars.js"></script>
+
+</body>
+</html>
